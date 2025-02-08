@@ -230,9 +230,9 @@ const LeapAI = ({ onNavigate }) => {
                     </div>
 
                     {/* Rest of the content with adjusted width */}
-                    <div className="w-full flex flex-col items-center px-6">
+                    <div className="w-full flex flex-col items-center px-10">
                         {/* Title */}
-                        <div className="text-center mt-4 w-full animate-fade-scale">
+                        <div className="text-center mt-6 w-full animate-fade-scale">
                             <h1 className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-100 to-white drop-shadow-lg animate-glow">
                                 Welcome to LEAP 2025 Agentic AI Virtual Assistants
                             </h1>
@@ -245,7 +245,7 @@ const LeapAI = ({ onNavigate }) => {
                         <div className="flex flex-wrap justify-center items-start gap-8 mt-6 mb-4 w-full max-w-[1400px]">
                             
                             {/* Chatbot Section - enhanced */}
-                            <div className="w-[450px] h-[600px] bg-white/10 backdrop-blur-xl rounded-2xl shadow-2xl overflow-hidden flex flex-col border border-white/20 animate-slide-up">
+                            <div className="w-[500px] h-[650px] bg-white/10 backdrop-blur-xl rounded-2xl shadow-2xl overflow-hidden flex flex-col border border-white/20 animate-slide-up">
                                 {/* Header */}
                                 <div className="bg-gradient-to-r from-blue-900 via-blue-600 to-blue-400 text-white text-center py-4 font-bold uppercase text-lg tracking-wider flex-shrink-0 shadow-lg">
                                     Agentic AI Agent
@@ -264,7 +264,7 @@ const LeapAI = ({ onNavigate }) => {
                             </div>
 
                             {/* Drag & Drop Section - enhanced */}
-                            <div className="flex-1 min-w-[500px] max-w-[700px] flex flex-col justify-start h-[600px] gap-4 animate-slide-up"
+                            <div className="flex-1 min-w-[600px] max-w-[700px] flex flex-col justify-start h-[650px] gap-4 animate-slide-up"
                                  style={{ animationDelay: '0.2s' }}>
                                 {/* Draggable Items */}
                                 <div className="grid grid-cols-2 gap-3">

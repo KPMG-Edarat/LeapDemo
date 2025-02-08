@@ -150,25 +150,12 @@ const Agent = ({ title, index, Icon, iconBg }) => {
 };
 
 const DraggableAgent = ({ title, index, position, onPositionChange, visibleAgents, onHover, Icon, iconBg }) => {
-  const updateXarrow = useXarrow();
-  const nodeRef = React.useRef(null);
-  
   return (
-    <Draggable
-      nodeRef={nodeRef}
-      position={position}
-      onDrag={(e, data) => {
-        updateXarrow();
-        onPositionChange({ x: data.x, y: data.y });
-      }}
-      onStop={(e, data) => {
-        updateXarrow();
-        onPositionChange({ x: data.x, y: data.y });
-      }}
-    >
-      <div ref={nodeRef} 
+    <Draggable position={position} onDrag={(e, data) => onPositionChange({ x: data.x, y: data.y })}>
+      <div 
         className="cursor-move"
         onMouseEnter={() => onHover(index)}
+        onClick={() => onHover(index)}
       >
         <div className={`transition-all duration-300 ${
           visibleAgents.includes(index) ? 'ring-2 ring-blue-500' : ''
@@ -375,7 +362,9 @@ const AgentWorkflow = ({ onNavigate }) => {
     };
   
     const handleAgentHover = (index) => {
-      if (!visibleAgents.includes(index)) {
+      if (visibleAgents.includes(index)) {
+        setVisibleAgents(visibleAgents.filter(i => i !== index));
+      } else {
         setVisibleAgents([...visibleAgents, index]);
       }
     };
