@@ -254,7 +254,7 @@ const LeapAI = ({ onNavigate }) => {
                                 <div className="flex-1">
                                     <iframe 
                                         className="w-full h-full border-none"
-                                        src="https://copilotstudio.microsoft.com/environments/Default-fc3b3043-d920-470a-8ae0-b2610bb2aea5/bots/cr0c2_qaAgent/webchat?__version__=2"
+                                        src="https://copilotstudio.microsoft.com/environments/Default-fc3b3043-d920-470a-8ae0-b2610bb2aea5/bots/cr0c2_myAgent_0DgLY1/webchat?__version__=2"
                                     >
                                     </iframe>
                                 </div>
