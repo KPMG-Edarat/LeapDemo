@@ -2,8 +2,12 @@ import React, { useState, useEffect } from 'react';
 import { ArrowRight, Search, Youtube, FileSpreadsheet, Calculator, MessageSquare } from 'lucide-react';
 import Xarrow, { useXarrow, Xwrapper } from 'react-xarrows';
 import Draggable from 'react-draggable';
+import { 
+  FaCity, // For City Selection Agent
+  FaCloudSunRain, // For Weather Analysis Agent
+  FaCalendarCheck // For Plan Generation Agent
+} from 'react-icons/fa';
 import kpmgLogo from '../assets/kpmg.svg';
-
 const DraggableToolBox = ({ name, Icon, extraField, position, onPositionChange, toolId, agentIndex, hoveredAgent, isVisible }) => {
     const updateXarrow = useXarrow();
     
@@ -56,87 +60,96 @@ const DraggableToolBox = ({ name, Icon, extraField, position, onPositionChange, 
     );
   };
 
-const Agent = ({ title, index }) => (
-  <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-3 w-[250px]">
-    <h3 className="text-xs font-medium mb-2">{title}</h3>
-    
-    <div className="space-y-2">
-      <div>
-        <label className="block text-xs text-gray-600 mb-1">Model Provider</label>
-        <select className="w-full border border-gray-200 rounded-md px-2 py-0.5 text-xs">
-          <option>OpenAI</option>
-        </select>
-      </div>
-
-      <div>
-        <label className="block text-xs text-gray-600 mb-1">Model Name</label>
-        <input 
-          type="text" 
-          className="w-full border border-gray-200 rounded-md px-2 py-0.5 text-xs"
-          placeholder="gpt-3.5-turbo"
-        />
-      </div>
-
-      <div>
-        <label className="block text-xs text-gray-600 mb-1">OpenAI API Key</label>
-        <input 
-          type="password" 
-          className="w-full border border-gray-200 rounded-md px-2 py-0.5 text-xs"
-          placeholder="••••••••••••••••"
-        />
-      </div>
-
-      <div>
-        <label className="block text-xs text-gray-600 mb-1">Agent Instructions</label>
-        <textarea 
-          className="w-full border border-gray-200 rounded-md px-2 py-0.5 text-xs h-[40px] resize-none"
-          placeholder="You are a helpful assistant..."
-        />
-      </div>
-
-      <div className="pt-1.5 border-t border-gray-100 flex items-center gap-2">
-        <div 
-          id={`tools-circle-${index}`}
-          className="relative"
-        >
-          <div className="w-2 h-2 rounded-full bg-blue-500"></div>
-          <div className="absolute inset-0 rounded-full bg-blue-400 animate-pulse opacity-50"></div>
+const Agent = ({ title, index, Icon, iconBg }) => {
+  return (
+    <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-3 w-[250px]">
+      <div className="flex items-center gap-3 mb-2">
+        <div className={`p-2 rounded-lg ${iconBg} shadow-lg`}>
+          <Icon 
+            className="w-6 h-6 text-white filter drop-shadow-md"
+          />
         </div>
-        <span className="text-xs font-medium">Tools</span>
+        <h3 className="text-xs font-medium">{title}</h3>
       </div>
-
-      <div className="pt-1.5 border-t border-gray-100 flex items-center gap-2">
-        <div 
-          id={`input-circle-${index}`}
-          className="relative"
-        >
-          <div className="w-2 h-2 rounded-full bg-blue-500"></div>
-          <div className="absolute inset-0 rounded-full bg-blue-400 animate-pulse opacity-50"></div>
+      
+      <div className="space-y-2">
+        <div>
+          <label className="block text-xs text-gray-600 mb-1">Model Provider</label>
+          <select className="w-full border border-gray-200 rounded-md px-2 py-0.5 text-xs">
+            <option>OpenAI</option>
+          </select>
         </div>
-        <span className="text-xs font-medium">Input</span>
-      </div>
 
-      <div className="pt-1.5 border-t border-gray-100 relative">
-        <input 
-          type="text" 
-          placeholder="Response" 
-          className="w-full border border-gray-200 rounded-md px-2 py-0.5 text-xs pr-8"
-        />
-        <div 
-          id={`output-circle-${index}`}
-          className="absolute right-2 top-1/2 transform -translate-y-1/2"
-        >
-          <div className="relative">
-            <div className="w-2 h-2 rounded-full bg-purple-500"></div>
-            <div className="absolute inset-0 rounded-full bg-purple-400 animate-pulse opacity-50"></div>
+        <div>
+          <label className="block text-xs text-gray-600 mb-1">Model Name</label>
+          <input 
+            type="text" 
+            className="w-full border border-gray-200 rounded-md px-2 py-0.5 text-xs"
+            placeholder="gpt-3.5-turbo"
+          />
+        </div>
+
+        <div>
+          <label className="block text-xs text-gray-600 mb-1">OpenAI API Key</label>
+          <input 
+            type="password" 
+            className="w-full border border-gray-200 rounded-md px-2 py-0.5 text-xs"
+            placeholder="••••••••••••••••"
+          />
+        </div>
+
+        <div>
+          <label className="block text-xs text-gray-600 mb-1">Agent Instructions</label>
+          <textarea 
+            className="w-full border border-gray-200 rounded-md px-2 py-0.5 text-xs h-[40px] resize-none"
+            placeholder="You are a helpful assistant..."
+          />
+        </div>
+
+        <div className="pt-1.5 border-t border-gray-100 flex items-center gap-2">
+          <div 
+            id={`tools-circle-${index}`}
+            className="relative"
+          >
+            <div className="w-2 h-2 rounded-full bg-blue-500"></div>
+            <div className="absolute inset-0 rounded-full bg-blue-400 animate-pulse opacity-50"></div>
+          </div>
+          <span className="text-xs font-medium">Tools</span>
+        </div>
+
+        <div className="pt-1.5 border-t border-gray-100 flex items-center gap-2">
+          <div 
+            id={`input-circle-${index}`}
+            className="relative"
+          >
+            <div className="w-2 h-2 rounded-full bg-blue-500"></div>
+            <div className="absolute inset-0 rounded-full bg-blue-400 animate-pulse opacity-50"></div>
+          </div>
+          <span className="text-xs font-medium">Input</span>
+        </div>
+
+        <div className="pt-1.5 border-t border-gray-100 relative">
+          <input 
+            type="text" 
+            placeholder="Response" 
+            className="w-full border border-gray-200 rounded-md px-2 py-0.5 text-xs pr-8"
+          />
+          <div 
+            id={`output-circle-${index}`}
+            className="absolute right-2 top-1/2 transform -translate-y-1/2"
+          >
+            <div className="relative">
+              <div className="w-2 h-2 rounded-full bg-purple-500"></div>
+              <div className="absolute inset-0 rounded-full bg-purple-400 animate-pulse opacity-50"></div>
+            </div>
           </div>
         </div>
       </div>
     </div>
-  </div>
-);
+  );
+};
 
-const DraggableAgent = ({ title, index, position, onPositionChange, visibleAgents, onHover }) => {
+const DraggableAgent = ({ title, index, position, onPositionChange, visibleAgents, onHover, Icon, iconBg }) => {
   const updateXarrow = useXarrow();
   const nodeRef = React.useRef(null);
   
@@ -160,7 +173,12 @@ const DraggableAgent = ({ title, index, position, onPositionChange, visibleAgent
         <div className={`transition-all duration-300 ${
           visibleAgents.includes(index) ? 'ring-2 ring-blue-500' : ''
         }`}>
-          <Agent title={title} index={index} />
+          <Agent 
+            title={title} 
+            index={index}
+            Icon={Icon}
+            iconBg={iconBg}
+          />
         </div>
       </div>
     </Draggable>
@@ -249,8 +267,8 @@ const DraggableChatInput = ({ position, onPositionChange }) => {
   );
 };
 
-// Add the OutputBox component
-const DraggableOutputBox = ({ position, onPositionChange }) => {
+// Update DraggableOutputBox component
+const DraggableOutputBox = ({ position, onPositionChange, isVisible }) => {
   const updateXarrow = useXarrow();
   const nodeRef = React.useRef(null);
   
@@ -268,7 +286,8 @@ const DraggableOutputBox = ({ position, onPositionChange }) => {
       }}
     >
       <div ref={nodeRef} className="cursor-move">
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-3 w-[250px]">
+        <div className={`bg-white rounded-lg shadow-sm border border-gray-200 p-3 w-[250px] 
+          transition-opacity duration-300 ${isVisible ? 'opacity-100' : 'opacity-20'}`}>
           <h3 className="text-xs font-medium mb-2">Final Output</h3>
           
           <div className="space-y-2">
@@ -305,15 +324,36 @@ const DraggableOutputBox = ({ position, onPositionChange }) => {
   );
 };
 
-const AgentWorkflow = () => {
+const AgentWorkflow = ({ onNavigate }) => {
     const [positions, setPositions] = useState(() => {
       const savedPositions = localStorage.getItem('agentWorkflowPositions');
-      return savedPositions ? JSON.parse(savedPositions) : {
-        agents: {},
-        explanations: {},
-        tools: {},
-        chatInput: { x: window.innerWidth / 2 - 125, y: 100 },
-        outputBox: { x: window.innerWidth / 2 - 125, y: window.innerHeight - 250 }  // Position at bottom
+      if (savedPositions) {
+        return JSON.parse(savedPositions);
+      }
+      
+      return {
+        agents: {
+          'agent-0': { x: -124, y: -22 },
+          'agent-1': { x: 40, y: 91 },
+          'agent-2': { x: -42, y: -80 }
+        },
+        explanations: {
+          'explanation-0': { x: -68, y: -137 },
+          'explanation-1': { x: 383, y: -25 },
+          'explanation-2': { x: 417, y: -141 }
+        },
+        tools: {
+          'tool-0-0': { x: -119, y: 25 },
+          'tool-0-1': { x: -50, y: 36 },
+          'tool-0-2': { x: -430, y: -189 },
+          'tool-1-0': { x: -80, y: 45 },
+          'tool-1-1': { x: -207, y: -214 },
+          'tool-2-0': { x: 376, y: 24 },
+          'tool-2-1': { x: -112, y: 21 },
+          'tool-2-2': { x: -88, y: 42 }
+        },
+        chatInput: { x: 8, y: -5 },
+        outputBox: { x: 826, y: -527 }
       };
     });
   
@@ -342,7 +382,9 @@ const AgentWorkflow = () => {
   
     const agents = [
       {
-        title: "City Selection Agent",
+        title: 'City Selection Agent',
+        Icon: FaCity,
+        iconBg: 'bg-gradient-to-br from-blue-400 to-blue-600', // Blue gradient
         description: "Evaluates potential travel destinations based on user preferences and constraints. Analyzes factors like budget, weather, and activities to recommend ideal cities.",
         tools: [
           { 
@@ -369,7 +411,9 @@ const AgentWorkflow = () => {
         ]
       },
       {
-        title: "Local Expert Agent",
+        title: 'Weather Analysis Agent',
+        Icon: FaCloudSunRain,
+        iconBg: 'bg-gradient-to-br from-purple-400 to-purple-600', // Purple gradient
         description: "Gathers comprehensive local information about selected cities, including attractions, culture, transportation, and practical tips for visitors.",
         tools: [
           {
@@ -389,7 +433,9 @@ const AgentWorkflow = () => {
         ]
       },
       {
-        title: "Travel Concierge Agent",
+        title: 'Plan Generation Agent',
+        Icon: FaCalendarCheck,
+        iconBg: 'bg-gradient-to-br from-green-400 to-green-600', // Green gradient
         description: "Creates detailed travel itineraries and provides recommendations for accommodations, restaurants, and activities based on user preferences.",
         tools: [
           {
@@ -580,6 +626,20 @@ const AgentWorkflow = () => {
               />
             </div>
 
+            {/* Add Back to LEAP button */}
+            <div className="fixed top-4 right-4 z-50">
+              <button
+                onClick={() => onNavigate('leap')}
+                className="bg-gradient-to-r from-blue-600/90 to-blue-500/90 
+                  text-white px-6 py-3 rounded-lg font-medium text-lg
+                  hover:from-blue-700 hover:to-blue-600 transition-all duration-300 
+                  shadow-lg hover:shadow-xl backdrop-blur-sm border border-white/10
+                  hover:-translate-y-0.5"
+              >
+                Back to LEAP
+              </button>
+            </div>
+
             <h1 className="text-3xl font-bold text-center mb-8 text-gray-100 animate-glow">
               Agentic Workflow
             </h1>
@@ -627,6 +687,8 @@ const AgentWorkflow = () => {
                         <DraggableAgent 
                           title={agent.title} 
                           index={index}
+                          Icon={agent.Icon}
+                          iconBg={agent.iconBg}
                           position={positions.agents[`agent-${index}`] || { x: 0, y: 0 }}
                           onPositionChange={(pos) => updatePosition('agents', `agent-${index}`, pos)}
                           visibleAgents={visibleAgents}
@@ -709,6 +771,7 @@ const AgentWorkflow = () => {
                 <DraggableOutputBox
                   position={positions.outputBox}
                   onPositionChange={(pos) => updatePosition('outputBox', null, pos)}
+                  isVisible={visibleAgents.includes(agents.length - 1)}
                 />
               </div>
 
@@ -735,11 +798,28 @@ const AgentWorkflow = () => {
               onClick={() => {
                 localStorage.removeItem('agentWorkflowPositions');
                 setPositions({
-                  agents: {},
-                  explanations: {},
-                  tools: {},
-                  chatInput: { x: window.innerWidth / 2 - 125, y: 100 },
-                  outputBox: { x: window.innerWidth / 2 - 125, y: window.innerHeight - 250 }
+                  agents: {
+                    'agent-0': { x: -124, y: -22 },
+                    'agent-1': { x: 40, y: 91 },
+                    'agent-2': { x: -42, y: -80 }
+                  },
+                  explanations: {
+                    'explanation-0': { x: -68, y: -137 },
+                    'explanation-1': { x: 383, y: -25 },
+                    'explanation-2': { x: 417, y: -141 }
+                  },
+                  tools: {
+                    'tool-0-0': { x: -119, y: 25 },
+                    'tool-0-1': { x: -50, y: 36 },
+                    'tool-0-2': { x: -430, y: -189 },
+                    'tool-1-0': { x: -80, y: 45 },
+                    'tool-1-1': { x: -207, y: -214 },
+                    'tool-2-0': { x: 376, y: 24 },
+                    'tool-2-1': { x: -112, y: 21 },
+                    'tool-2-2': { x: -88, y: 42 }
+                  },
+                  chatInput: { x: 8, y: -5 },
+                  outputBox: { x: 826, y: -527 }
                 });
                 setVisibleAgents([]);
               }}

@@ -1,46 +1,28 @@
-import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import Agentic from './components/mainpage';
 import Homepage from './components/homepage';
 import LeapAI from './components/Leap';
 import LoadingScreen from './components/LoadingScreen';
 
-// Create a wrapper component to handle loading states
-const LoadingWrapper = ({ children }) => {
-  const [isLoading, setIsLoading] = useState(true);
-  const location = useLocation();
+function App() {
+  const [currentPage, setCurrentPage] = useState('home');
+  const [isLoading, setIsLoading] = useState(false);
 
-  useEffect(() => {
-    // Show loading screen on route change
+  const navigate = (page) => {
     setIsLoading(true);
-    
-    // Simulate loading time - changed from 1500 to 500ms
-    const timer = setTimeout(() => {
+    setTimeout(() => {
+      setCurrentPage(page);
       setIsLoading(false);
-    }, 500); // 0.5 seconds loading time
-
-    return () => clearTimeout(timer);
-  }, [location.pathname]);
+    }, 500);
+  };
 
   return (
     <>
       {isLoading && <LoadingScreen />}
-      {children}
+      {currentPage === 'home' && <Homepage onNavigate={navigate} />}
+      {currentPage === 'leap' && <LeapAI onNavigate={navigate} />}
+      {currentPage === 'agentic' && <Agentic onNavigate={navigate} />}
     </>
-  );
-};
-
-function App() {
-  return (
-    <Router>
-      <LoadingWrapper>
-        <Routes>
-          <Route path="/" element={<Homepage />} />
-          <Route path="/leap" element={<LeapAI />} />
-          <Route path="/agentic" element={<Agentic />} />
-        </Routes>
-      </LoadingWrapper>
-    </Router>
   );
 }
 

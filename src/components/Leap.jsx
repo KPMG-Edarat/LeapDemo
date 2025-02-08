@@ -1,11 +1,9 @@
 import React, { useState, useEffect } from "react";
 import background from "../assets/background.png";
 import kpmgLogo from "../assets/kpmg.svg";
-import { useNavigate } from 'react-router-dom';
 
-const LeapAI = () => {
+const LeapAI = ({ onNavigate }) => {
     const [droppedItems, setDroppedItems] = useState([]);
-    const navigate = useNavigate();
     
     // Expanded list of items
     const allItems = [
@@ -216,7 +214,7 @@ const LeapAI = () => {
                                 className="px-6 py-3 bg-gradient-to-r from-blue-600/90 to-blue-500/90 rounded-lg text-white 
                                     hover:from-blue-700 hover:to-blue-600 transition-all duration-300 shadow-lg hover:shadow-xl 
                                     font-medium text-lg backdrop-blur-sm border border-white/10" 
-                                onClick={() => navigate('/')}
+                                onClick={() => onNavigate('home')}
                             >
                                 Home Page
                             </button>
@@ -224,7 +222,7 @@ const LeapAI = () => {
                                 className="px-6 py-3 bg-gradient-to-r from-blue-600/90 to-blue-500/90 rounded-lg text-white 
                                     hover:from-blue-700 hover:to-blue-600 transition-all duration-300 shadow-lg hover:shadow-xl 
                                     font-medium text-lg backdrop-blur-sm border border-white/10" 
-                                onClick={() => navigate('/agentic')}
+                                onClick={() => onNavigate('agentic')}
                             >
                                 Use Case
                             </button>

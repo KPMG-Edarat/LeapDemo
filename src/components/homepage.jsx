@@ -8,7 +8,7 @@ import impactIcon from '../assets/impact.png';
 import trendIcon from '../assets/trend.png';
 import backgroundImage from '../assets/backgroundwelcome.png';
 
-const WelcomePage = () => {
+const WelcomePage = ({ onNavigate }) => {
   const toggleInfo = (id) => {
     const element = document.getElementById(id);
     if (element.style.display === "none") {
@@ -17,8 +17,6 @@ const WelcomePage = () => {
       element.style.display = "none";
     }
   };
-
-  const navigate = useNavigate();
 
   // Duplicate array for continuous scrolling effect
   const trends = [
@@ -42,19 +40,57 @@ const WelcomePage = () => {
   // Update the particle animation code
   useEffect(() => {
     const canvas = document.getElementById('tech-background');
-    const ctx = canvas.getContext('2d');
+    const ctx = canvas.getContext('2d', { 
+      alpha: false,
+      desynchronized: true // Reduce latency
+    });
+    
+    // Use offscreen canvas for better performance
+    const offscreen = new OffscreenCanvas(window.innerWidth, window.innerHeight);
+    const offscreenCtx = offscreen.getContext('2d', { alpha: false });
     
     const setCanvasSize = () => {
-      canvas.width = window.innerWidth;
-      canvas.height = window.innerHeight;
+      const dpr = window.devicePixelRatio || 1;
+      const displayWidth = window.innerWidth;
+      const displayHeight = window.innerHeight;
+      
+      canvas.width = displayWidth;
+      canvas.height = displayHeight;
+      offscreen.width = displayWidth;
+      offscreen.height = displayHeight;
     };
     setCanvasSize();
-    window.addEventListener('resize', setCanvasSize);
 
-    // Update the particle system settings
-    const particles = [];
-    const particleCount = 35;  // Increased slightly
-    const connectionDistance = 180;  // Increased connection distance
+    // Throttle resize event with RAF
+    let resizeRequestId;
+    window.addEventListener('resize', () => {
+      if (!resizeRequestId) {
+        resizeRequestId = requestAnimationFrame(() => {
+          setCanvasSize();
+          resizeRequestId = null;
+        });
+      }
+    });
+
+    // Update particle count and connection distance based on screen size
+    const getParticleSettings = () => {
+      const width = window.innerWidth;
+      if (width < 768) {
+        return {
+          count: Math.min(30, Math.floor(width / 50)),
+          distance: Math.min(150, width / 8)
+        };
+      }
+      return {
+        count: Math.min(40, Math.floor(width / 50)),
+        distance: Math.min(180, width / 8)
+      };
+    };
+
+    const settings = getParticleSettings();
+    const particleCount = settings.count;
+    const connectionDistance = settings.distance;
+    const connectionDistanceSquared = connectionDistance * connectionDistance;
     
     class Particle {
       constructor() {
@@ -62,115 +98,114 @@ const WelcomePage = () => {
       }
 
       reset() {
-        this.x = Math.random() * canvas.width;
-        this.y = Math.random() * canvas.height;
-        this.vx = (Math.random() - 0.5) * 0.3;
-        this.vy = (Math.random() - 0.5) * 0.3;
-        this.radius = Math.random() * 3 + 2;
-        // Brighter colors for particles
-        this.color = `hsla(${210 + Math.random() * 30}, 100%, 85%, 0.9)`;
-        this.glowColor = `hsla(${210 + Math.random() * 30}, 100%, 75%, 0.4)`;
-      }
-
-      draw() {
-        // Outer glow
-        ctx.beginPath();
-        ctx.arc(this.x, this.y, this.radius * 3, 0, Math.PI * 2);
-        ctx.fillStyle = this.glowColor;
-        ctx.fill();
-
-        // Middle glow
-        ctx.beginPath();
-        ctx.arc(this.x, this.y, this.radius * 2, 0, Math.PI * 2);
-        ctx.fillStyle = this.color;
-        ctx.fill();
-
-        // Enhanced shadow effect
-        ctx.shadowBlur = 20;
-        ctx.shadowColor = this.color;
-        
-        // Core particle
-        ctx.beginPath();
-        ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
-        ctx.fillStyle = 'rgba(255, 255, 255, 1)';
-        ctx.fill();
-        
-        ctx.shadowBlur = 0;
+        this.x = Math.random() * offscreen.width;
+        this.y = Math.random() * offscreen.height;
+        this.vx = (Math.random() - 0.5) * 0.1;
+        this.vy = (Math.random() - 0.5) * 0.1;
+        this.radius = Math.random() * 2 + 2;
+        this.initialRadius = this.radius;
+        this.glowSize = this.radius * 4;
       }
 
       update() {
         this.x += this.vx;
         this.y += this.vy;
 
-        if (this.x < 0) this.x = canvas.width;
-        if (this.x > canvas.width) this.x = 0;
-        if (this.y < 0) this.y = canvas.height;
-        if (this.y > canvas.height) this.y = 0;
+        // Pulse the radius for a subtle animation
+        this.radius = this.initialRadius + Math.sin(Date.now() * 0.003) * 0.5;
+
+        const padding = connectionDistance;
+        if (this.x < -padding) this.x = offscreen.width + padding;
+        else if (this.x > offscreen.width + padding) this.x = -padding;
+        if (this.y < -padding) this.y = offscreen.height + padding;
+        else if (this.y > offscreen.height + padding) this.y = -padding;
       }
     }
 
-    // Create particles
+    // Pre-create particles
+    const particles = [];
     for (let i = 0; i < particleCount; i++) {
       particles.push(new Particle());
     }
 
-    let animationFrameId;
-    const animate = () => {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      
-      // Draw connections with enhanced glow
-      ctx.globalCompositeOperation = 'screen';  // Makes overlapping elements brighter
-      
-      for (let i = 0; i < particles.length; i++) {
-        const p1 = particles[i];
-        for (let j = i + 1; j < particles.length; j++) {
-          const p2 = particles[j];
-          const dx = p1.x - p2.x;
-          const dy = p1.y - p2.y;
-          const distance = Math.sqrt(dx * dx + dy * dy);
+    let lastTime = 0;
+    const fps = 30; // Limit FPS
+    const frameInterval = 1000 / fps;
 
-          if (distance < connectionDistance) {
-            // Enhanced connection glow
-            ctx.shadowBlur = 15;  // Increased blur
-            ctx.shadowColor = 'rgba(147, 197, 253, 0.8)';  // Brighter shadow
-            
-            const opacity = 0.6 * (1 - distance/connectionDistance);  // Increased base opacity
-            
-            // Draw multiple lines with different colors for enhanced glow
-            const colors = [
-              `rgba(147, 197, 253, ${opacity})`,     // Blue
-              `rgba(191, 219, 254, ${opacity * 0.8})`, // Light blue
-              `rgba(96, 165, 250, ${opacity * 0.6})`   // Darker blue
-            ];
-            
-            colors.forEach((color, index) => {
-              ctx.beginPath();
-              ctx.strokeStyle = color;
-              ctx.lineWidth = 2 - (index * 0.5);  // Decreasing line width
-              ctx.moveTo(p1.x, p1.y);
-              ctx.lineTo(p2.x, p2.y);
-              ctx.stroke();
-            });
+    const animate = (currentTime) => {
+      const deltaTime = currentTime - lastTime;
+      
+      if (deltaTime > frameInterval) {
+        lastTime = currentTime - (deltaTime % frameInterval);
+        
+        offscreenCtx.clearRect(0, 0, offscreen.width, offscreen.height);
+        
+        // Draw connections with glow
+        offscreenCtx.strokeStyle = 'rgba(147, 197, 253, 0.4)';
+        offscreenCtx.lineWidth = 1.8;
+        offscreenCtx.shadowBlur = 8;
+        offscreenCtx.shadowColor = 'rgba(147, 197, 253, 0.6)';
+
+        // Update and draw particles
+        particles.forEach(particle => {
+          particle.update();
+        });
+
+        // Draw connections
+        for (let i = 0; i < particles.length; i++) {
+          const p1 = particles[i];
+          for (let j = i + 1; j < particles.length; j++) {
+            const p2 = particles[j];
+            const dx = p1.x - p2.x;
+            const dy = p1.y - p2.y;
+            const distSquared = dx * dx + dy * dy;
+
+            if (distSquared < connectionDistanceSquared) {
+              const alpha = 1 - (Math.sqrt(distSquared) / connectionDistance);
+              offscreenCtx.strokeStyle = `rgba(147, 197, 253, ${alpha * 0.4})`;
+              offscreenCtx.beginPath();
+              offscreenCtx.moveTo(p1.x, p1.y);
+              offscreenCtx.lineTo(p2.x, p2.y);
+              offscreenCtx.stroke();
+            }
           }
         }
-      }
-      
-      ctx.globalCompositeOperation = 'source-over';
-      ctx.shadowBlur = 0;
 
-      // Update and draw particles
-      particles.forEach(particle => {
-        particle.update();
-        particle.draw();
-      });
+        // Draw particles with glow
+        particles.forEach(particle => {
+          // Draw glow
+          const gradient = offscreenCtx.createRadialGradient(
+            particle.x, particle.y, 0,
+            particle.x, particle.y, particle.glowSize
+          );
+          gradient.addColorStop(0, 'rgba(147, 197, 253, 0.4)');
+          gradient.addColorStop(1, 'rgba(147, 197, 253, 0)');
+          
+          offscreenCtx.fillStyle = gradient;
+          offscreenCtx.beginPath();
+          offscreenCtx.arc(particle.x, particle.y, particle.glowSize, 0, Math.PI * 2);
+          offscreenCtx.fill();
+
+          // Draw particle
+          offscreenCtx.fillStyle = 'rgba(147, 197, 253, 0.8)';
+          offscreenCtx.beginPath();
+          offscreenCtx.arc(particle.x, particle.y, particle.radius, 0, Math.PI * 2);
+          offscreenCtx.fill();
+        });
+
+        // Copy to main canvas
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.drawImage(offscreen, 0, 0);
+      }
 
       animationFrameId = requestAnimationFrame(animate);
     };
 
-    animate();
+    let animationFrameId = requestAnimationFrame(animate);
 
     return () => {
       cancelAnimationFrame(animationFrameId);
+      cancelAnimationFrame(resizeRequestId);
       window.removeEventListener('resize', setCanvasSize);
     };
   }, []);
@@ -205,6 +240,74 @@ const WelcomePage = () => {
             from { transform: translateX(-50px); opacity: 0; }
             to { transform: translateX(0); opacity: 1; }
           }
+
+          @media (max-width: 768px) {
+            .animate-slide-up {
+              animation: slideUp 0.6s ease-out forwards;
+            }
+            
+            .animate-fade-in {
+              animation: fadeIn 0.6s ease-out forwards;
+            }
+          }
+
+          @media (max-width: 480px) {
+            * {
+              font-size: 95%;
+            }
+          }
+
+          @media (max-width: 1200px) and (max-height: 600px) {
+            .main-title {
+              font-size: 32px !important;
+              margin-top: 60px !important;
+            }
+
+            .subtitle {
+              font-size: 18px !important;
+              margin-top: 10px !important;
+            }
+
+            .box-container {
+              margin-top: 15px !important;
+              gap: 15px !important;
+            }
+
+            .info-box {
+              padding: 15px !important;
+            }
+
+            .info-box img {
+              width: 50px !important;
+            }
+
+            .info-box h2 {
+              font-size: 20px !important;
+              margin: 10px 0 5px 0 !important;
+            }
+
+            .trends-container {
+              bottom: 40px !important;
+              height: 100px !important;
+              padding: 10px 0 !important;
+            }
+
+            .trends-title {
+              font-size: 16px !important;
+              margin-bottom: 5px !important;
+            }
+
+            .trend-item {
+              padding: 8px 15px !important;
+              font-size: 14px !important;
+            }
+
+            .start-button {
+              margin-bottom: 120px !important;
+              padding: 10px 25px !important;
+              font-size: 16px !important;
+            }
+          }
         `}
       </style>
       <div style={{
@@ -223,7 +326,16 @@ const WelcomePage = () => {
             width: '100%',
             height: '100%',
             zIndex: 0,
-            background: 'linear-gradient(135deg, #0A192F 0%, #0F2547 50%, #162B4D 100%)',  // Deeper blue gradient
+            background: `radial-gradient(circle at 50% 50%, 
+              #162B4D 0%, 
+              #0F2547 40%, 
+              #0A192F 100%
+            ), 
+            linear-gradient(135deg, 
+              rgba(10, 25, 47, 0.95) 0%, 
+              rgba(15, 37, 71, 0.95) 50%, 
+              rgba(22, 43, 77, 0.95) 100%
+            )`,  // Combined radial and linear gradient
           }}
         />
 
@@ -239,6 +351,7 @@ const WelcomePage = () => {
           minHeight: '100vh',
           width: '100vw',
           overflow: 'hidden',
+          padding: '0 20px', // Add padding for small screens
         }}>
           <div style={{
             display: 'flex',
@@ -262,19 +375,22 @@ const WelcomePage = () => {
             maxWidth: '1400px',
             animation: 'fadeIn 1s ease-out'
           }}>
-            <h1 style={{ 
-              fontSize: '48px', 
-              margin: 0, 
+            <h1 className="main-title" style={{ 
+              fontSize: window.innerWidth < 768 ? '32px' : '48px', // Smaller font on mobile
+              margin: '0 auto',
+              maxWidth: '90%', // Limit width on large screens
+              padding: '0 10px',
               fontWeight: 'bold',
               background: 'linear-gradient(135deg, #fff 0%, #e0e7ff 100%)',
               WebkitBackgroundClip: 'text',
               WebkitTextFillColor: 'transparent',
               animation: 'glow 3s infinite',
-              letterSpacing: '1px'
+              letterSpacing: '1px',
+              textAlign: 'center'
             }}>
               Welcome to LEAP 2025 and the Future of Agentic AI
             </h1>
-            <p style={{ 
+            <p className="subtitle" style={{ 
               fontSize: '24px', 
               marginTop: '20px', 
               lineHeight: 1.5,
@@ -295,9 +411,9 @@ const WelcomePage = () => {
           <div style={{
             marginTop: '30px',
             display: 'flex',
-            flexDirection: 'row',
+            flexDirection: window.innerWidth < 1024 ? 'column' : 'row', // Stack on mobile
             justifyContent: 'center',
-            gap: '40px',
+            gap: window.innerWidth < 1024 ? '20px' : '40px',
             width: '90%',
             maxWidth: '1400px'
           }}>
@@ -320,7 +436,7 @@ const WelcomePage = () => {
                 icon: impactIcon, 
                 title: 'Impact', 
                 id: 'impact',
-                gradient: 'linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(16, 185, 129, 0.2) 100%)',  // Green gradient
+                gradient: 'linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(59, 130, 246, 0.2) 100%)',  // Changed to match Solution's blue gradient
                 content: 'Agentic AI improves customer experience, boosts operational efficiency, and enables better decision-making. Its scalable deployment reduces costs while supporting growth....'
               }
             ].map((item) => (
@@ -330,22 +446,33 @@ const WelcomePage = () => {
                 border: '1px solid rgba(255, 255, 255, 0.1)',
                 boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1), 0 1px 3px rgba(0, 0, 0, 0.1)',
                 color: 'white',
-                padding: '30px',
+                padding: window.innerWidth < 768 ? '20px' : '30px',
                 borderRadius: '15px',
                 cursor: 'pointer',
-                width: '33%',
+                width: window.innerWidth < 1024 ? '100%' : '33%', // Full width on mobile
+                minWidth: window.innerWidth < 1024 ? 'auto' : '300px',
                 textAlign: 'center',
                 transition: 'transform 0.2s, box-shadow 0.2s',
+                transform: 'translateY(0)',
                 '&:hover': {
-                  transform: 'translateY(-2px)',
-                  boxShadow: '0 6px 8px rgba(0, 0, 0, 0.2), 0 2px 4px rgba(0, 0, 0, 0.1)'
+                  transform: 'translateY(-8px)',
+                  boxShadow: '0 12px 20px rgba(0, 0, 0, 0.2)',
+                  background: item.gradient.replace('0.1', '0.15').replace('0.2', '0.25'), // Slightly stronger gradient on hover
+                  border: '1px solid rgba(255, 255, 255, 0.2)'
                 }
               }}>
                 <img 
                   src={item.icon} 
                   alt={item.title} 
                   onClick={() => toggleInfo(item.id)}
-                  style={{ width: '80px', cursor: 'pointer' }}
+                  style={{ 
+                    width: '80px', 
+                    cursor: 'pointer',
+                    transition: 'transform 0.3s ease',
+                    '&:hover': {
+                      transform: 'scale(1.1)'
+                    }
+                  }}
                 />
                 <h2 style={{ 
                   margin: '20px 0 10px 0', 
@@ -373,53 +500,27 @@ const WelcomePage = () => {
             ))}
           </div>
 
-          <div style={{ 
-            marginTop: '30px', 
-            marginBottom: '80px',
-            textAlign: 'center' 
-          }}>
-            <button 
-              onClick={() => navigate('/leap')}
-              style={{
-                background: 'linear-gradient(135deg, #0091DA 0%, #006B9F 100%)',
-                color: 'white',
-                padding: '15px 40px',
-                border: 'none',
-                borderRadius: '8px',
-                fontSize: '20px',
-                cursor: 'pointer',
-                transition: 'all 0.3s',
-                fontWeight: 'bold',
-                boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
-                '&:hover': {
-                  transform: 'translateY(-2px)',
-                  boxShadow: '0 6px 8px rgba(0, 0, 0, 0.2)',
-                  background: 'linear-gradient(135deg, #007bb8 0%, #005a8c 100%)'
-                }
-              }}
-            >
-              Start
-            </button>
-          </div>
-
           <div style={{
             position: 'fixed',
-            bottom: '80px',
+            bottom: window.innerWidth < 768 ? '60px' : '80px',
             width: '100%',
-            background: 'rgba(255, 255, 255, 0.03)',  // Very subtle white background
+            background: 'rgba(255, 255, 255, 0.03)',
             backdropFilter: 'blur(10px)',
-            padding: '30px 0',
+            padding: window.innerWidth < 768 ? '15px 0' : '30px 0',
             textAlign: 'center',
             borderTop: '1px solid rgba(255, 255, 255, 0.1)',
             boxShadow: '0 -4px 20px rgba(0, 0, 0, 0.1)',
+            height: window.innerWidth < 768 ? '120px' : window.innerWidth < 1024 ? '150px' : '180px',
+            overflow: 'hidden',
+            zIndex: 1
           }}>
             <div style={{
-              fontSize: '24px',
+              fontSize: window.innerWidth < 768 ? '18px' : '24px',
               fontWeight: 'bold',
               background: 'linear-gradient(135deg, #A7A8AA 0%, #ffffff 100%)',
               WebkitBackgroundClip: 'text',
               WebkitTextFillColor: 'transparent',
-              marginBottom: '20px',
+              marginBottom: window.innerWidth < 768 ? '10px' : '20px',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
@@ -429,9 +530,9 @@ const WelcomePage = () => {
                 src={trendIcon} 
                 alt="Trend Icon" 
                 style={{ 
-                  width: '32px', 
-                  height: '32px', 
-                  marginRight: '15px',
+                  width: window.innerWidth < 768 ? '24px' : '32px', 
+                  height: window.innerWidth < 768 ? '24px' : '32px', 
+                  marginRight: '10px',
                   filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.2))'
                 }} 
               /> 
@@ -445,7 +546,7 @@ const WelcomePage = () => {
               <div style={{
                 display: 'flex',
                 whiteSpace: 'nowrap',
-                animation: 'scroll 60s linear infinite',
+                animation: 'scroll 30s linear infinite', // Changed from 45s to 30s for faster scrolling
               }}>
                 {[...trends, ...trends].map((trend, index) => (
                   <span
@@ -455,17 +556,17 @@ const WelcomePage = () => {
                       background: 'linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(59, 130, 246, 0.2) 100%)',
                       border: '1px solid rgba(255, 255, 255, 0.1)',
                       color: 'white',
-                      padding: '15px 25px',
-                      margin: '0 15px',
+                      padding: window.innerWidth < 768 ? '10px 15px' : '15px 25px',
+                      margin: window.innerWidth < 768 ? '0 8px' : '0 15px',
                       borderRadius: '8px',
-                      fontSize: '18px',
+                      fontSize: window.innerWidth < 768 ? '14px' : '18px',
                       whiteSpace: 'nowrap',
                       boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
                       transition: 'all 0.3s ease',
                       '&:hover': {
-                        transform: 'translateY(-2px)',
-                        boxShadow: '0 4px 8px rgba(0, 0, 0, 0.2)',
-                        background: 'linear-gradient(135deg, rgba(59, 130, 246, 0.2) 0%, rgba(59, 130, 246, 0.3) 100%)'
+                        transform: 'translateY(-4px) scale(1.05)',
+                        boxShadow: '0 8px 16px rgba(0, 0, 0, 0.15)',
+                        background: 'linear-gradient(135deg, rgba(59, 130, 246, 0.2) 0%, rgba(59, 130, 246, 0.4) 100%)'
                       }
                     }}
                   >
@@ -474,6 +575,38 @@ const WelcomePage = () => {
                 ))}
               </div>
             </div>
+          </div>
+
+          <div style={{
+            marginTop: '30px',
+            marginBottom: window.innerWidth < 768 ? '150px' : '200px',
+            textAlign: 'center',
+            position: 'relative',
+            zIndex: 2
+          }}>
+            <button 
+              onClick={() => onNavigate('leap')}
+              className="start-button"
+              style={{
+                background: 'linear-gradient(135deg, #0091DA 0%, #006B9F 100%)',
+                color: 'white',
+                padding: window.innerWidth < 768 ? '12px 30px' : '15px 40px',
+                border: 'none',
+                borderRadius: '8px',
+                fontSize: window.innerWidth < 768 ? '18px' : '20px',
+                cursor: 'pointer',
+                transition: 'all 0.3s',
+                fontWeight: 'bold',
+                boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
+                '&:hover': {
+                  transform: 'translateY(-2px)',
+                  boxShadow: '0 6px 8px rgba(0, 0, 0, 0.2)',
+                  background: 'linear-gradient(135deg, #007bb8 0%, #005a8c 100%)'
+                }
+              }}
+            >
+              Start
+            </button>
           </div>
 
           <div style={{
@@ -496,19 +629,6 @@ const WelcomePage = () => {
           }}>
             Powered by KPMG
           </div>
-
-          <style>
-            {`
-              @keyframes scroll {
-                0% {
-                  transform: translateX(0);
-                }
-                100% {
-                  transform: translateX(-50%);
-                }
-              }
-            `}
-          </style>
         </div>
       </div>
     </>
