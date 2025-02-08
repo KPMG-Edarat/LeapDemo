@@ -7,9 +7,9 @@ const LeapAI = ({ onNavigate }) => {
     
     // Expanded list of items
     const allItems = [
-        { id: 1, text: "Agentic AI can make decisions and take actions, while traditional LLMs only respond to prompts", correct: true },
-        { id: 2, text: "Agentic AI interacts with external tools, but traditional LLMs just generate text", correct: true },
-        { id: 3, text: "Agentic AI requires Cloud infrastructure", correct: false },
+        { id: 1, text: "Agentic AI can autonomously detect fraudulent transactions in financial services, reducing losses and improving security.", correct: true },
+        { id: 2, text: "Agentic AI can optimize workforce scheduling in industries like retail and healthcare by predicting demand fluctuations.", correct: true },
+        { id: 3, text: "Agentic AI can analyze customer feedback across multiple channels to identify emerging trends and improve product development.", correct: false },
         { id: 4, text: "Agentic AI using small LLM models can be more efficient than traditional large LLMs", correct: true },
         { id: 5, text: "Traditional LLMs answer one question at a time", correct: false },
         { id: 6, text: "Agentic AI follows only predefined rules, similar to traditional LLMs", correct: false },
