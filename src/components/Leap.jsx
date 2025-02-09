@@ -10,18 +10,9 @@ const LeapAI = ({ onNavigate }) => {
         { id: 1, text: "Agentic AI can autonomously detect fraudulent transactions in financial services, reducing losses and improving security.", correct: true },
         { id: 2, text: "Agentic AI can optimize workforce scheduling in industries like retail and healthcare by predicting demand fluctuations.", correct: true },
         { id: 3, text: "Agentic AI can analyze customer feedback across multiple channels to identify emerging trends and improve product development.", correct: false },
-        { id: 4, text: "Agentic AI using small LLM models can be more efficient than traditional large LLMs", correct: true },
-        { id: 5, text: "Traditional LLMs answer one question at a time", correct: false },
-        { id: 6, text: "Agentic AI follows only predefined rules, similar to traditional LLMs", correct: false },
-        { id: 7, text: "Agentic AI can learn and adapt from user feedback", correct: true },
-        { id: 8, text: "Agentic AI requires constant human supervision", correct: false },
-        { id: 9, text: "Agentic AI can autonomously complete complex workflows", correct: true },
-        { id: 10, text: "Traditional LLMs have better memory management than Agentic AI", correct: false },
-        { id: 11, text: "Agentic AI can handle multi-step tasks independently", correct: true },
-        { id: 12, text: "Agentic AI always requires more computational power than traditional LLMs", correct: false },
-        { id: 13, text: "Agentic AI can dynamically choose which tools to use", correct: true },
-        { id: 14, text: "Traditional LLMs are more secure than Agentic AI", correct: false },
-        { id: 15, text: "Agentic AI can maintain context across multiple interactions", correct: true }
+        { id: 4, text: "AAgentic AI interacts with external tools, but traditional LLMs just generate text", correct: true },
+        { id: 5, text: "Agentic AI requires Cloud infrastructure", correct: false },
+        { id: 6, text: "Agentic AI follows only predefined rules, similar to traditional LLMs", correct: false }
     ];
 
     // Randomly select 6 items on component mount
