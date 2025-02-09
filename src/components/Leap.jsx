@@ -9,7 +9,7 @@ const LeapAI = ({ onNavigate }) => {
     const allItems = [
         { id: 1, text: "Agentic AI can autonomously detect fraudulent transactions in financial services, reducing losses and improving security.", correct: true },
         { id: 2, text: "Agentic AI can optimize workforce scheduling in industries like retail and healthcare by predicting demand fluctuations.", correct: true },
-        { id: 3, text: "Agentic AI can analyze customer feedback across multiple channels to identify emerging trends and improve product development.", correct: false },
+        { id: 3, text: "Agentic AI can analyze customer feedback across multiple channels to identify emerging trends and improve product development.", correct: true },
         { id: 4, text: "AAgentic AI interacts with external tools, but traditional LLMs just generate text", correct: true },
         { id: 5, text: "Agentic AI requires Cloud infrastructure", correct: false },
         { id: 6, text: "Agentic AI follows only predefined rules, similar to traditional LLMs", correct: false }
