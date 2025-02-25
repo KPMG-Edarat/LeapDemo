@@ -388,7 +388,7 @@ const WelcomePage = ({ onNavigate }) => {
               letterSpacing: '1px',
               textAlign: 'center'
             }}>
-              Welcome to LEAP 2025 and the Future of Agentic AI
+              Welcome to the Future of Agentic AI
             </h1>
             <p className="subtitle" style={{ 
               fontSize: '24px', 

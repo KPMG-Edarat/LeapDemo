@@ -234,10 +234,10 @@ const LeapAI = ({ onNavigate }) => {
                         {/* Title */}
                         <div className="text-center mt-6 w-full animate-fade-scale">
                             <h1 className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-100 to-white drop-shadow-lg animate-glow">
-                                Welcome to LEAP 2025 Agentic AI Virtual Assistants
+                                Welcome to Agentic AI Virtual Assistants
                             </h1>
                             <p className="text-lg mt-2 text-blue-100 font-medium">
-                                Explore LEAP 2025 with our AI Assistants—innovate, inspire, and enjoy!
+                                Explore our AI Assistants—innovate, inspire, and enjoy!
                             </p>
                         </div>
 
