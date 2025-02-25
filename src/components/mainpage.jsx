@@ -625,7 +625,7 @@ const AgentWorkflow = ({ onNavigate }) => {
                   shadow-lg hover:shadow-xl backdrop-blur-sm border border-white/10
                   hover:-translate-y-0.5"
               >
-                Back to LEAP
+                Back to Homepage
               </button>
             </div>
 
